@@ -1,4 +1,4 @@
-#!/usr/bin/env node -r esm
+#!/usr/bin/env -S node -r esm
 
 import 'localenv';
 import optimist from 'optimist';
@@ -31,6 +31,9 @@ const argv = optimist
         default: 10,
         describe: 'maximum number of tcp sockets each client is allowed to establish at one time (the tunnels)'
     })
+    .options('port-range', {
+        describe: 'Available clients port range'
+    })
     .argv;
 
 if (argv.help) {
@@ -38,8 +41,18 @@ if (argv.help) {
     process.exit();
 }
 
+let portMin = null;
+let portMax = null;
+if (argv['port-range']) {
+    const range = argv['port-range'].split(':');
+    portMin = Number(range[0]);
+    portMax = Number(range[1]);
+}
+
 const server = CreateServer({
     max_tcp_sockets: argv['max-sockets'],
+    port_min: portMin,
+    port_max: portMax,
     secure: argv.secure,
     domain: argv.domain,
 });
